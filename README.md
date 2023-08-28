@@ -1,7 +1,9 @@
 
 Express js
 
-configuration .env DATABASE_URL="postgresql://postgres:password@localhost:5436/fishdb" PORT=3000
+configuration .env 
+DATABASE_URL="postgresql://postgres:password@localhost:5436/fishdb"
+PORT=3000
 
 For testing Task 1: Data Manipulation hit endpoint
 
@@ -20,3 +22,6 @@ http://localhost:3000/api/users
 Command line Running mode development : yarn dev/ npm run test
 
 Running unit testing : npm run test/ npx jest/ yarn jest
+
+swagger url
+http://localhost:3000/api-docs/
