@@ -7,6 +7,7 @@ import {
   updateUserService,
   deleteUserService,
 } from "../services/usersService.js";
+import { readFileAsync } from "../helper/file.js";
 
 const router = express.Router();
 
@@ -108,6 +109,16 @@ router.delete("/users/:id", async (req, res) => {
     res.status(500).json({
       message: "Internal server error",
     });
+  }
+});
+
+router.get("/files", async (req, res) => {
+  try {
+    const fileContents = await readFileAsync("public/example.txt");
+    res.json({ contents: fileContents });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error reading file" });
   }
 });
 
