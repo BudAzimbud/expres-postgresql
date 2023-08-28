@@ -8,6 +8,7 @@ import {
   deleteUserService,
 } from "../services/usersService.js";
 import { readFileAsync } from "../helper/file.js";
+import { generateOutput } from "../helper/generateOutput.js";
 
 const router = express.Router();
 
@@ -116,6 +117,16 @@ router.get("/files", async (req, res) => {
   try {
     const fileContents = await readFileAsync("public/example.txt");
     res.json({ contents: fileContents });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error reading file" });
+  }
+});
+
+router.get("/output", async (req, res) => {
+  try {
+    const output = generateOutput(50);
+    res.json({ data: output });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Error reading file" });
