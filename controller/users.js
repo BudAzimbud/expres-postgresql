@@ -32,7 +32,7 @@ router.get("/users", async (req, res) => {
 router.get("/users/:id", async (req, res) => {
   const userId = req.params.id;
   try {
-    const user = await findUserByIdService(userId);
+    const user = await findUserByIdService(+userId);
     if (!user) {
       res.status(404).json({
         message: "User not found",
@@ -57,7 +57,8 @@ router.post("/users", async (req, res) => {
       data: createUser,
     });
   } catch (error) {
-    if (error.message === "duplicate email") {
+    console.log(error.code);
+    if (error.code === "P2002") {
       res.status(409).json({
         message: "Duplicate email",
       });
@@ -73,7 +74,7 @@ router.put("/users/:id", async (req, res) => {
   const userId = req.params.id;
   const body = req.body;
   try {
-    const updatedUser = await updateUserService(userId, body);
+    const updatedUser = await updateUserService(+userId, body);
     if (!updatedUser) {
       res.status(404).json({
         message: "User not found",
@@ -93,7 +94,7 @@ router.put("/users/:id", async (req, res) => {
 router.delete("/users/:id", async (req, res) => {
   const userId = req.params.id;
   try {
-    const deletedUser = await deleteUserService(userId);
+    const deletedUser = await deleteUserService(+userId);
     if (!deletedUser) {
       res.status(404).json({
         message: "User not found",

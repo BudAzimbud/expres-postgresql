@@ -3,12 +3,8 @@ import UserRepository from "../repository/userRepository.js";
 const userRepository = new UserRepository();
 
 export const listUsersService = async (page = 0, limit = 10) => {
-  try {
-    const users = await userRepository.findMany(limit, page * limit);
-    return users;
-  } catch (error) {
-    console.log(error);
-  }
+  const users = await userRepository.findMany(limit, page * limit);
+  return users;
 };
 
 export const createUserService = async (data) => {
