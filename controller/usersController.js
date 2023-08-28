@@ -9,6 +9,7 @@ import {
 } from "../services/usersService.js";
 import { readFileAsync } from "../helper/file.js";
 import { generateOutput } from "../helper/generateOutput.js";
+import { validateUserDTO } from "./userDtoMiddleware.js";
 
 const router = express.Router();
 
@@ -51,7 +52,7 @@ router.get("/users/:id", async (req, res) => {
   }
 });
 
-router.post("/users", async (req, res) => {
+router.post("/users", validateUserDTO, async (req, res) => {
   const body = req.body;
   try {
     const createUser = await createUserService(body);

@@ -1,6 +1,6 @@
 import express from "express";
 import { port } from "./config/environtment.js";
-import UserController from "./controller/users.js";
+import UserController from "./controller/usersController.js";
 import path from "path";
 
 const app = express();
