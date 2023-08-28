@@ -15,8 +15,10 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
 router.get("/users", async (req, res) => {
+  const limit = req.query.limit || 10;
+  const page = req.query.page || 0;
   try {
-    const listUsers = await listUsersService();
+    const listUsers = await listUsersService(+page, +limit);
     res.status(200).json({
       data: listUsers,
     });

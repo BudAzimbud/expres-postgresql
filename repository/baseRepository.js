@@ -23,8 +23,11 @@ class BaseRepository {
     return await prisma[this.model].delete({ where: { id } });
   }
 
-  async findMany() {
-    return await prisma[this.model].findMany();
+  async findMany(take, skip) {
+    return await prisma[this.model].findMany({
+      take,
+      skip,
+    });
   }
 }
 
