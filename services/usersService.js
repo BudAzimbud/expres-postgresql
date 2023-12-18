@@ -1,4 +1,5 @@
 import UserRepository from "../repository/userRepository.js";
+import { hashPassword } from "./auth/hashService.js";
 
 const userRepository = new UserRepository();
 
@@ -8,17 +9,23 @@ export const listUsersService = async (page = 0, limit = 10) => {
 };
 
 export const createUserService = async (data) => {
-  const user = await userRepository.create(data);
+  const user = await userRepository.create({
+    ...data,
+    password: await hashPassword(data.password),
+  });
   return user;
 };
 
-export const findUserByIdService = async (id) => {
-  const user = await userRepository.findById(id);
+export const findUserByEmailService = async (email) => {
+  const user = await userRepository.findByEmail(email);
   return user;
 };
 
-export const updateUserService = async (id, data) => {
-  const updatedUser = await userRepository.update(id, data);
+export const updateUserByEmailService = async (email, data) => {
+  const updatedUser = await userRepository.updateByEmail(email, {
+    ...data,
+    password: await hashPassword(data.password),
+  });
   return updatedUser;
 };
 

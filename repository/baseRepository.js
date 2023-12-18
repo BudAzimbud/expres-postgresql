@@ -1,30 +1,33 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
 
 class BaseRepository {
+  prisma = new PrismaClient();
+
   constructor(model) {
     this.model = model;
+    this.prisma = new PrismaClient();
+
   }
 
   async create(data) {
-    return await prisma[this.model].create({ data });
+    return await this.prisma[this.model].create({ data });
   }
 
   async findById(id) {
-    return await prisma[this.model].findUnique({ where: { id } });
+    return await this.prisma[this.model].findUnique({ where: { id } });
   }
 
-  async update(id, data) {
-    return await prisma[this.model].update({ where: { id }, data });
+  async updateByEmail(email, data) {
+    return await this.prisma[this.model].updateByEmail({ where: { email }, data });
   }
 
   async delete(id) {
-    return await prisma[this.model].delete({ where: { id } });
+    return await this.prisma[this.model].delete({ where: { id } });
   }
 
   async findMany(take, skip) {
-    return await prisma[this.model].findMany({
+    return await this.prisma[this.model].findMany({
       take,
       skip,
     });
