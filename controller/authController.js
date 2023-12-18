@@ -12,6 +12,7 @@ import { EventEmitter } from "events";
 import { sendEmail } from "../services/mail/mailService.js";
 import { signToken, verifiedToken } from "../services/auth/jwtService.js";
 import { comparePassword } from "../services/auth/hashService.js";
+import { IsDebug, fullUrl } from "../config/environtment.js";
 const eventEmitter = new EventEmitter();
 
 eventEmitter.on("send_email", ({ to, name, instructions, text, link }) => {
@@ -22,9 +23,8 @@ const router = express.Router();
 
 router.post("/signup", validateUserDTO, async (req, res) => {
   const body = req.body;
-  const fullUrl = req.protocol + "://" + req.get("host");
   const confirmationLink =
-    fullUrl + "/api/auth/verified/" + signToken({ email: body.email });
+    fullUrl + "auth/verified/" + signToken({ email: body.email });
   try {
     const createUser = await createUserService(body);
     eventEmitter.emit("send_email", {
@@ -36,6 +36,7 @@ router.post("/signup", validateUserDTO, async (req, res) => {
     });
     res.status(201).json({
       data: createUser,
+      confirmationLink: IsDebug ? confirmationLink : "",
     });
   } catch (error) {
     console.log(error);
@@ -60,35 +61,33 @@ router.get("/verified/:token", async (req, res) => {
     });
   }
 
-  res
-    .json({
-      token: "Invalid link confirmation",
-    })
-    .status(400);
+  res.status(400).json({
+    token: "Invalid link confirmation",
+  });
 });
 
 router.post("/signin", async (req, res) => {
   const findUser = await findUserByEmailService(req.body.email);
+  if (findUser.verified === false) {
+    return res.status(401).json({ message: "Please verified your email" });
+  }
   if (await comparePassword(req.body.password, findUser.password)) {
     delete findUser.password;
     return res.json({
       access_token: signToken(findUser, "1d"),
     });
   }
-  res
-    .json({
-      message: "Wrong password",
-    })
-    .status(401);
+  res.status(401).json({
+    message: "Wrong password",
+  });
 });
 
 router.post("/forget-password", async (req, res) => {
   const body = req.body;
   const findUser = await findUserByEmailService(req.body.email);
-  const fullUrl = req.protocol + "://" + req.get("host");
-  const confirmationLink =
+  const resetLink =
     fullUrl +
-    "/api/auth/reset-link/" +
+    "auth/reset-link/" +
     signToken({ email: findUser.email, forgetPassword: true }, "1h");
   if (findUser) {
     eventEmitter.emit("send_email", {
@@ -96,7 +95,12 @@ router.post("/forget-password", async (req, res) => {
       name: body.email,
       instructions: "Reset password",
       text: "Follow this link",
-      link: confirmationLink,
+      link: resetLink,
+    });
+
+    return res.json({
+        message: "Check you email",
+        resetLink : IsDebug ? resetLink : ''
     });
   }
 
@@ -113,11 +117,9 @@ router.post("/reset-password", validateResetPasswordDTO, async (req, res) => {
     });
     return res.json({ Message: "Success" });
   }
-  res
-    .json({
-      message: "Invalid reset password or expired",
-    })
-    .status(400);
+  res.status(400).json({
+    message: "Invalid reset password or expired",
+  });
 });
 
 router.post("refresh-token", async (req, res) => {
@@ -125,7 +127,7 @@ router.post("refresh-token", async (req, res) => {
   if (verified) {
     return res.json({ token: signToken(verified, "1h") });
   }
-  res.json({ message: "Unauthenthicated" }).status(401);
+  res.status(401).json({ message: "Unauthenthicated" });
 });
 
 export default router;
