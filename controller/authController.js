@@ -54,32 +54,45 @@ router.post("/signup", validateUserDTO, async (req, res) => {
 
 router.get("/verified/:token", async (req, res) => {
   const verified = verifiedToken(req.params.token);
-  if (verified) {
-    await updateUserByEmailService(verified.email, { verified: true });
-    res.json({
-      token: "Success Confirmation",
+
+  try{
+    if (verified) {
+      await updateUserByEmailService(verified.email, { verified: true });
+     
+      return res.redirect('http://localhost:3000/login')
+    }
+  
+    res.status(400).json({
+      token: "Invalid link confirmation",
     });
+  }catch(error){
+    console.log(error)
   }
 
-  res.status(400).json({
-    token: "Invalid link confirmation",
-  });
 });
 
 router.post("/signin", async (req, res) => {
-  const findUser = await findUserByEmailService(req.body.email);
-  if (findUser.verified === false) {
-    return res.status(401).json({ message: "Please verified your email" });
-  }
-  if (await comparePassword(req.body.password, findUser.password)) {
-    delete findUser.password;
-    return res.json({
-      access_token: signToken(findUser, "1d"),
+ 
+  try {
+    const findUser = await findUserByEmailService(req.body.email);
+    if (findUser.verified === false) {
+      return res.status(401).json({ message: "Please verified your email" });
+    }
+    if (await comparePassword(req.body.password, findUser.password)) {
+      delete findUser.password;
+      return res.json({
+        access_token: signToken(findUser, "1d"),
+      });
+    }
+    res.status(401).json({
+      message: "Wrong password",
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(401).json({
+      message: "Wrong password",
     });
   }
-  res.status(401).json({
-    message: "Wrong password",
-  });
 });
 
 router.post("/forget-password", async (req, res) => {
@@ -99,8 +112,8 @@ router.post("/forget-password", async (req, res) => {
     });
 
     return res.json({
-        message: "Check you email",
-        resetLink : IsDebug ? resetLink : ''
+      message: "Check you email",
+      resetLink: IsDebug ? resetLink : "",
     });
   }
 
@@ -122,7 +135,7 @@ router.post("/reset-password", validateResetPasswordDTO, async (req, res) => {
   });
 });
 
-router.post("refresh-token", async (req, res) => {
+router.post("/refresh-token", async (req, res) => {
   const verified = verifiedToken(req.body.token);
   if (verified) {
     return res.json({ token: signToken(verified, "1h") });

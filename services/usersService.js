@@ -22,11 +22,15 @@ export const findUserByEmailService = async (email) => {
 };
 
 export const updateUserByEmailService = async (email, data) => {
-  const updatedUser = await userRepository.updateByEmail(email, {
+  if (data.password) {
+    return await userRepository.updateByEmail(email, {
+      ...data,
+      password: await hashPassword(data.password),
+    });
+  }
+  return await userRepository.updateByEmail(email, {
     ...data,
-    password: await hashPassword(data.password),
   });
-  return updatedUser;
 };
 
 export const deleteUserService = async (id) => {

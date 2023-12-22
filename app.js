@@ -6,12 +6,12 @@ import swaggerSpec from "./swagger.js"; // Import the Swagger configuration
 import path from "path";
 import bodyParser from "body-parser";
 import { EventEmitter } from "events";
-const eventEmitter = new EventEmitter();
+import cors from 'cors'
 const app = express();
 
 
 app.use(bodyParser.json());
-app.set('eventEmitter', eventEmitter);
+app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
